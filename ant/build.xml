@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="../." default="compile" name="JavaRestFulWebservice">
+    
+    <property name="bin.dir" value="${basedir}/bin"/>
+    <property name="app.name" value="${ant.project.name}"/>
+    <property name="classes.dir" value="${basedir}/bin/classes"/>
+    <property name="source.dir" value="${basedir}/src"/>
+    <property name="lib.dir" value="${basedir}/web/WEB-INF/lib"/>
+    <property name="web.dir" value="${basedir}/web"/>
+	<property name="web-inf.dir" value="${web.dir}/WEB-INF"/>
+	<property name="war.filename" value="${app.name}.war"/>
+	<property name="dist.dir" value="${basedir}/dist"/>
+	<property name="appserver.root.dir" value="D:/java/jboss-5.1.0.GA"/>
+    <property name="appserver.deploy.dir" value="${appserver.root.dir}/server/default/deploy"/>
+	
+    
+    <target name="clean" description="Delete all compiled objects">
+		<delete dir="${bin.dir}"/>
+		<delete dir="${classes.dir}"/>
+		
+	</target>
+	<target name="init">
+		<echo message="==================================================="/>
+		<echo message="Building Project Tutorial : JavaRestFulWebservice"/>
+		<echo message="."/>
+		<echo message="Deepak Dogra."/>
+		<echo message="."/>
+		<echo message="ant.home     = ${ant.home}"/>
+		<echo message="ant.version  = ${ant.version}"/>
+		<echo message="java.home    = ${java.home}"/>
+		<echo message="java.version = ${java.version}"/>
+		<echo message="==================================================="/>
+		<mkdir dir="${classes.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+		
+	</target>
+    <path id="build.classpath">
+		
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+    <target name="compile" depends="init" description="Compile all Java classes that are not up-to-date">
+		<mkdir dir="${classes.dir}"/>
+		<javac debug="on"
+               source="1.6"
+               target="1.6"
+               deprecation="true"
+               destdir="${classes.dir}"
+               includes="**/*.java"
+               srcdir="${source.dir}"
+        	   compiler="modern">
+			<classpath>
+				<path refid="build.classpath"/>
+			</classpath>
+		</javac>
+	</target>
+	<target name="war" depends="compile">
+		<tstamp>
+			<format property="touch.time" pattern="MMM dd yyyy hh:mm aa"/>
+		</tstamp>
+		<filter token="buildVersion" value="${label}"/>
+		<filter token="buildDate" value="${touch.time}"/>
+		<war warfile="${dist.dir}/${war.filename}" webxml="${web-inf.dir}/web.xml">
+			<classes dir="${classes.dir}" includes="**/*.class" excludes="**/*Test*.class"/>
+
+			<lib dir="${lib.dir}" includes="*.jar,*.zip"/>
+
+			<fileset dir="${web.dir}" excludes="**/WEB-INF/**"/>
+		</war>
+		<echo message="done with creating the war file..."/>
+	</target>	
+	
+	<target name="deploy.appserver" depends="war" description="Deploy the WAR to the appserver deploy location">
+		<unwar src="${dist.dir}/${war.filename}" dest="${appserver.deploy.dir}/${app.name}.war"/>
+	</target>
+</project>    
